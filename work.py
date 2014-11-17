@@ -387,56 +387,6 @@ class Project(ModelSQL, ModelView):
     def get_shipment_returns(self, name):
         return [m.id for s in self.sales for m in s.shipment_returns]
 
-    @classmethod
-    def get_maintenance(cls, projects, names):
-        pool = Pool()
-        Maintenance = pool.get('work.maintenance')
-        res = {}
-        for name in names:
-            res[name] = dict((m.id, None) for m in projects)
-
-        for maintenance in Maintenance.search([
-                    ('reference', 'in', [str(m) for m in projects]),
-                    ]):
-            project = maintenance.reference.id
-            for name in names:
-                value = getattr(maintenance, name)
-                if isinstance(value, ModelSQL):
-                    value = value.id
-                res[name][project] = value
-        return res
-
-    @classmethod
-    def set_maintenance(cls, projects, name, value):
-        pool = Pool()
-        Maintenance = pool.get('work.maintenance')
-        to_write = []
-        to_create = []
-        for project in projects:
-            if not project.maintenance:
-                continue
-            if not project.work_maintenances:
-                to_create.append(project.work_maintenance_vals(
-                        {name: value}))
-            else:
-                to_write.extend(project.work_maintenances)
-        if to_create:
-            Maintenance.create(to_create)
-        if to_write:
-            Maintenance.write(to_write, {
-                    name: value,
-                    })
-
-    @classmethod
-    def search_maintenance(cls, name, clause):
-        return [('projects.%s' % name,) + tuple(clause[1:])]
-
-    def work_maintenance_vals(self, vals):
-        'Returns the values for the work maintenance to be created for self'
-        vals['reference'] = str(self)
-        vals['work'] = self.work.id
-        return vals
-
     def get_milestones(self, name=None):
         return [m.id for m in self.milestone_group.lines]
 
