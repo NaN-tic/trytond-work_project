@@ -14,16 +14,6 @@
     <field name="start_date"/>
     <label name="end_date"/>
     <field name="end_date"/>
-    <label name="maintenance"/>
-    <field name="maintenance"/>
-    <label name="date_planned"/>
-    <field name="date_planned"/>
-    <label name="date_start"/>
-    <field name="date_start"/>
-    <label name="date_done"/>
-    <field name="date_done"/>
-    <label name="date_next"/>
-    <field name="date_next"/>
     <notebook>
         <page id="amounts" string="Amounts" col="6">
             <separator id="invoice" string="Invoice" colspan="6"/>

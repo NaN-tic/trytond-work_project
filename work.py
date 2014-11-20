@@ -134,40 +134,14 @@ class Project(ModelSQL, ModelView):
             domain=[
                 ('group', '=', Eval('milestone_group')),
                 ],
+            states={
+                'invisible': ~Bool(Eval('milestone_group')),
+                },
             depends=['milestone_group']),
         'get_milestones', setter='set_milestones')
-    start_date = fields.Date('Start Date',
-        states={
-            'invisible': Bool(Eval('maintenance')),
-            },
-        depends=['maintenance'])
-    end_date = fields.Date('End Date',
-        states={
-            'invisible': Bool(Eval('maintenance')),
-            },
-        depends=['maintenance'])
+    start_date = fields.Date('Start Date')
+    end_date = fields.Date('End Date')
     maintenance = fields.Boolean('Maintenance')
-    date_planned = fields.Date('Planned Date',
-            states={
-                'invisible': ~Bool(Eval('maintenance')),
-                },
-            depends=['maintenance'])
-    date_start = fields.Date('Start Date',
-            states={
-                'invisible': ~Bool(Eval('maintenance')),
-                },
-            depends=['maintenance'])
-    date_done = fields.Date('Done Date',
-            states={
-                'invisible': ~Bool(Eval('maintenance')),
-                },
-            depends=['maintenance'])
-    date_next = fields.Date('Next maintenance',
-            states={
-                'invisible': ~Bool(Eval('maintenance')),
-                },
-            depends=['maintenance'])
-
     work_shipments = fields.One2Many('shipment.work', 'project',
         'Shipment Works',
         domain=[
@@ -388,6 +362,8 @@ class Project(ModelSQL, ModelView):
         return [m.id for s in self.sales for m in s.shipment_returns]
 
     def get_milestones(self, name=None):
+        if not self.milestone_group:
+            return []
         return [m.id for m in self.milestone_group.lines]
 
     @classmethod

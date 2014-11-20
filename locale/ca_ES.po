@@ -54,22 +54,6 @@ msgctxt "field:work.project,create_uid:"
 msgid "Create User"
 msgstr "Usuari de creació"
 
-msgctxt "field:work.project,date_done:"
-msgid "Done Date"
-msgstr "Data realizació"
-
-msgctxt "field:work.project,date_next:"
-msgid "Next maintenance"
-msgstr "Pròxim manteniment"
-
-msgctxt "field:work.project,date_planned:"
-msgid "Planned Date"
-msgstr "Data planificada"
-
-msgctxt "field:work.project,date_start:"
-msgid "Start Date"
-msgstr "Data inicial"
-
 msgctxt "field:work.project,end_date:"
 msgid "End Date"
 msgstr "Data finalització"
