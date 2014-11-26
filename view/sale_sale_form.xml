@@ -3,11 +3,9 @@
      copyright notices and license terms. -->
 <data>
     <xpath expr="/form/notebook/page[@id='other']/label[@name='milestone_group']"
-        position="replace">
+        position="before">
         <label name="project"/>
-    </xpath>
-    <xpath expr="/form/notebook/page[@id='other']/field[@name='milestone_group']"
-        position="replace">
         <field name="project"/>
+        <newline/>
     </xpath>
 </data>

@@ -1,3 +1,4 @@
+* Don't replace milestone_group from sales
 * Remove maintenance related fields
 * Hide milestones if no milestone group is defined.
 

@@ -410,11 +410,20 @@ class Sale:
     project = fields.Many2One('work.project', 'Project',
         states={
             'invisible': Eval('invoice_method') != 'milestone',
+            'readonly': ~Eval('state').in_(['draft', 'quotation']),
             },
         domain=[
             ('party', '=', Eval('party')),
             ],
         depends=['party', 'invoice_method'])
+
+    @classmethod
+    def __setup__(cls):
+        super(Sale, cls).__setup__()
+        readonly = cls.milestone_group.states['readonly']
+        cls.milestone_group.states.update({
+                'readonly': Bool(Eval('project')) | readonly,
+            })
 
     @classmethod
     def _ensure_milestone_project_relation(cls, sales):
@@ -427,6 +436,13 @@ class Sale:
                         }))
         if to_write:
             cls.write(*to_write)
+
+    @fields.depends('project', 'milestone_group')
+    def on_change_project(self):
+        changes = {'milestone_group': None}
+        if self.project:
+            changes['milestone_group'] = self.project.milestone_group.id
+        return changes
 
     @classmethod
     def create(cls, vlist):
