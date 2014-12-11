@@ -151,10 +151,14 @@ class Project(ModelSQL, ModelView):
     sales = fields.One2Many('sale.sale', 'project', 'Sales',
         domain=[
             ('party', '=', Eval('party', -1)),
+            ('milestone_group', '=', Eval('milestone_group', -1)),
             ],
         add_remove=[
             ('state', 'in', ['quotation', 'confirmed', 'processing']),
             ],
+        states = {
+            'readonly': ~Bool(Eval('milestone_group')),
+        },
         depends=['party'])
     sale_lines = fields.One2Many('work.project.sale.line', 'project',
         'Sale Lines')
@@ -425,18 +429,6 @@ class Sale:
                 'readonly': Bool(Eval('project')) | readonly,
             })
 
-    @classmethod
-    def _ensure_milestone_project_relation(cls, sales):
-        to_write = []
-        for sale in sales:
-            if (sale.project and (not sale.milestone_group or
-                        sale.milestone_group != sale.project.milestone_group)):
-                to_write.extend(([sale], {
-                            'milestone_group': sale.project.milestone_group.id,
-                        }))
-        if to_write:
-            cls.write(*to_write)
-
     @fields.depends('project', 'milestone_group')
     def on_change_project(self):
         changes = {'milestone_group': None}
@@ -454,7 +446,6 @@ class Sale:
                 if project.milestone_group:
                     value['milestone_group'] = project.milestone_group.id
         sales = super(Sale, cls).create(vlist)
-        cls._ensure_milestone_project_relation(sales)
         return sales
 
     @classmethod
@@ -464,7 +455,7 @@ class Sale:
         for sales, _ in zip(actions, actions):
             all_sales += sales
         super(Sale, cls).write(*args)
-        cls._ensure_milestone_project_relation(all_sales)
+
 
 
 class MilestoneGroup:
