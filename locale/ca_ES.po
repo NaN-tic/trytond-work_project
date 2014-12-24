@@ -22,10 +22,6 @@ msgctxt "field:shipment.work,project:"
 msgid "Project"
 msgstr "Projecte"
 
-msgctxt "field:work.project,amount_invoice:"
-msgid "Amount To Invoice"
-msgstr "Import a facturar"
-
 msgctxt "field:work.project,amount_milestones:"
 msgid "Amount In Milestones"
 msgstr "Import en fites"
@@ -33,6 +29,10 @@ msgstr "Import en fites"
 msgctxt "field:work.project,amount_to_assign:"
 msgid "Amount to Assign"
 msgstr "Import per assignar"
+
+msgctxt "field:work.project,amount_to_invoice:"
+msgid "Amount To Invoice"
+msgstr "Import a facturar"
 
 msgctxt "field:work.project,code:"
 msgid "Code"
@@ -53,6 +53,10 @@ msgstr "Data de creació"
 msgctxt "field:work.project,create_uid:"
 msgid "Create User"
 msgstr "Usuari de creació"
+
+msgctxt "field:work.project,currency_digits:"
+msgid "Currency Digits"
+msgstr "Dígits de la moneda"
 
 msgctxt "field:work.project,end_date:"
 msgid "End Date"
@@ -157,10 +161,6 @@ msgstr "Albarans"
 msgctxt "field:work.project,start_date:"
 msgid "Start Date"
 msgstr "Data inicial"
-
-msgctxt "field:work.project,unit_digits:"
-msgid "Unit Digits"
-msgstr "Decimals unitat"
 
 msgctxt "field:work.project,work_shipments:"
 msgid "Shipment Works"

@@ -19,8 +19,8 @@
             <separator id="invoice" string="Invoice" colspan="6"/>
             <label name="amount_to_assign"/>
             <field name="amount_to_assign"/>
-            <label name="amount_invoice"/>
-            <field name="amount_invoice"/>
+            <label name="amount_to_invoice"/>
+            <field name="amount_to_invoice"/>
             <label name="amount_milestones"/>
             <field name="amount_milestones"/>
             <separator id="income" string="Income" colspan="6"/>

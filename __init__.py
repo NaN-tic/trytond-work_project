@@ -4,6 +4,7 @@ from trytond.pool import Pool
 from .work import *
 from .configuration import *
 
+
 def register():
     Pool.register(
         Configuration,

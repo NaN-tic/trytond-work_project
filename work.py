@@ -108,8 +108,8 @@ class Project(ModelSQL, ModelView):
             ('id', If(Eval('context', {}).contains('company'), '=', '!='),
                 Eval('context', {}).get('company', -1)),
             ])
-    unit_digits = fields.Function(fields.Integer('Unit Digits'),
-        'on_change_with_unit_digits')
+    currency_digits = fields.Function(fields.Integer('Currency Digits'),
+        'on_change_with_currency_digits')
     code = fields.Char('Code', required=True, select=True,
         states={
             'readonly': Eval('code_readonly', True),
@@ -126,6 +126,7 @@ class Project(ModelSQL, ModelView):
             ('company', '=', Eval('company')),
             ],
         states={
+            # TODO: required if id > 0?
             'readonly': (Eval('id', 0) > 0) & Bool(Eval('milestone_group', 0)),
             },
         depends=['id', 'party', 'company'])
@@ -151,6 +152,7 @@ class Project(ModelSQL, ModelView):
     sales = fields.One2Many('sale.sale', 'project', 'Sales',
         domain=[
             ('party', '=', Eval('party', -1)),
+            ('invoice_method', '=', 'milestone'),
             ('milestone_group', '=', Eval('milestone_group', -1)),
             ],
         add_remove=[
@@ -162,17 +164,17 @@ class Project(ModelSQL, ModelView):
         depends=['party'])
     sale_lines = fields.One2Many('work.project.sale.line', 'project',
         'Sale Lines')
-    amount_invoice = fields.Function(fields.Numeric('Amount To Invoice',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
-        'get_amount_milestones')
     amount_milestones = fields.Function(fields.Numeric('Amount In Milestones',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_amount_milestones')
     amount_to_assign = fields.Function(fields.Numeric('Amount to Assign',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
+        'get_amount_milestones')
+    amount_to_invoice = fields.Function(fields.Numeric('Amount To Invoice',
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_amount_milestones')
     shipments = fields.Function(fields.One2Many('stock.shipment.out',
             None, 'Shipments'), 'get_shipments')
@@ -182,40 +184,40 @@ class Project(ModelSQL, ModelView):
     moves = fields.Function(fields.One2Many('stock.move', None, 'Moves'),
         'get_moves')
     income_labor = fields.Function(fields.Numeric('Income Labor',
-        digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+        digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_income_labor')
     income_material = fields.Function(fields.Numeric('Income Material',
-        digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+        digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_income_material')
     income_other = fields.Function(fields.Numeric('Income Other',
-        digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+        digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_income_other')
     expense_labor = fields.Function(fields.Numeric('Expense Labor',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_expense_labor')
     expense_material = fields.Function(fields.Numeric('Expense Material',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_expense_material')
     expense_other = fields.Function(fields.Numeric('Expense Other',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_expense_other')
     margin_labor = fields.Function(fields.Numeric('Margin Labor',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_margins')
     margin_material = fields.Function(fields.Numeric('Margin Material',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_margins')
     margin_other = fields.Function(fields.Numeric('Margin Other',
-            digits=(16, Eval('unit_digits', 2)),
-            depends=['unit_digits']),
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
         'get_margins')
     margin_percent_labor = fields.Function(fields.Numeric('Margin(%) Labor',
             digits=(16, 4)),
@@ -247,7 +249,7 @@ class Project(ModelSQL, ModelView):
         return bool(config.project_sequence)
 
     @fields.depends('company')
-    def on_change_with_unit_digits(self, name=None):
+    def on_change_with_currency_digits(self, name=None):
         if self.company:
             return self.company.currency.digits
         return 2
@@ -258,21 +260,13 @@ class Project(ModelSQL, ModelView):
         for name in names:
             res[name] = dict((p.id, _ZERO) for p in projects)
         for project in projects:
-            skip = set()
-            for sale in project.sales:
-                if not sale.milestone_group or sale.milestone_group.id in skip:
-                    continue
-                for name, field in [
-                        ('amount_milestones', 'amount'),
-                        ('amount_to_assign', 'amount_to_assign'),
-                        ]:
-                    if name in names:
-                        res[name][project.id] += getattr(
-                            sale.milestone_group, field, _ZERO)
-                if 'amount_invoiced' in names:
-                    res[name][project.id] += (sale.milestone_group.amount -
-                        sale.milestone_group.amount_invoiced)
-                skip.add(sale.milestone_group.id)
+            for fname in names:
+                if fname == 'amount_milestones':
+                    group_fname = 'total_amount'
+                else:
+                    group_fname = fname
+                res[fname][project.id] += getattr(project.milestone_group,
+                    group_fname, _ZERO)
         return res
 
     def is_labour_line(self, line):
@@ -368,7 +362,7 @@ class Project(ModelSQL, ModelView):
     def get_milestones(self, name=None):
         if not self.milestone_group:
             return []
-        return [m.id for m in self.milestone_group.lines]
+        return [m.id for m in self.milestone_group.milestones]
 
     @classmethod
     def set_milestones(cls, projects, name, value):
@@ -377,7 +371,7 @@ class Project(ModelSQL, ModelView):
         groups = [p.milestone_group for p in projects if p.milestone_group]
         if groups:
             MilestoneGroup.write(groups, {
-                    'lines': value,
+                    'milestones': value,
                     })
 
     @classmethod
