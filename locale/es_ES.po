@@ -334,6 +334,14 @@ msgctxt "model:ir.action,name:act_invoices_form"
 msgid "Invoices"
 msgstr "Facturas"
 
+msgctxt "model:ir.action,name:act_project_related_purchase_invoices"
+msgid "Project Purchase Invoices"
+msgstr "Facturas de compras del proyecto"
+
+msgctxt "model:ir.action,name:act_project_related_purchases"
+msgid "Project Purchases"
+msgstr "Compras del proyecto"
+
 msgctxt "model:ir.action,name:act_return_form"
 msgid "Returns"
 msgstr "Devoluciones"

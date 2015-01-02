@@ -48,11 +48,11 @@ msgstr "Empresa"
 
 msgctxt "field:work.project,create_date:"
 msgid "Create Date"
-msgstr "Data de creació"
+msgstr "Data creació"
 
 msgctxt "field:work.project,create_uid:"
 msgid "Create User"
-msgstr "Usuari de creació"
+msgstr "Usuari creació"
 
 msgctxt "field:work.project,currency_digits:"
 msgid "Currency Digits"
@@ -176,11 +176,11 @@ msgstr "Usuari modificació"
 
 msgctxt "field:work.project-account.invoice.milestone.group,create_date:"
 msgid "Create Date"
-msgstr "Data de creació"
+msgstr "Data creació"
 
 msgctxt "field:work.project-account.invoice.milestone.group,create_uid:"
 msgid "Create User"
-msgstr "Usuari de creació"
+msgstr "Usuari creació"
 
 msgctxt "field:work.project-account.invoice.milestone.group,id:"
 msgid "ID"
@@ -208,11 +208,11 @@ msgstr "Usuari modificació"
 
 msgctxt "field:work.project.configuration,create_date:"
 msgid "Create Date"
-msgstr "Data de creació"
+msgstr "Data creació"
 
 msgctxt "field:work.project.configuration,create_uid:"
 msgid "Create User"
-msgstr "Usuari de creació"
+msgstr "Usuari creació"
 
 msgctxt "field:work.project.configuration,id:"
 msgid "ID"
@@ -240,11 +240,11 @@ msgstr "Empresa"
 
 msgctxt "field:work.project.configuration.company,create_date:"
 msgid "Create Date"
-msgstr "Data de creació"
+msgstr "Data creació"
 
 msgctxt "field:work.project.configuration.company,create_uid:"
 msgid "Create User"
-msgstr "Usuari de creació"
+msgstr "Usuari creació"
 
 msgctxt "field:work.project.configuration.company,id:"
 msgid "ID"
@@ -272,11 +272,11 @@ msgstr "Import"
 
 msgctxt "field:work.project.sale.line,create_date:"
 msgid "Create Date"
-msgstr "Data de creació"
+msgstr "Data creació"
 
 msgctxt "field:work.project.sale.line,create_uid:"
 msgid "Create User"
-msgstr "Usuari de creació"
+msgstr "Usuari creació"
 
 msgctxt "field:work.project.sale.line,currency:"
 msgid "Currency"
@@ -333,6 +333,14 @@ msgstr "Configuració projectes"
 msgctxt "model:ir.action,name:act_invoices_form"
 msgid "Invoices"
 msgstr "Factures"
+
+msgctxt "model:ir.action,name:act_project_related_purchase_invoices"
+msgid "Purchase Invoices"
+msgstr "Factures de compres del projecte"
+
+msgctxt "model:ir.action,name:act_project_related_purchases"
+msgid "Purchases"
+msgstr "Compres del projecte"
 
 msgctxt "model:ir.action,name:act_return_form"
 msgid "Returns"
