@@ -158,10 +158,10 @@ class Project(ModelSQL, ModelView):
         add_remove=[
             ('state', 'in', ['quotation', 'confirmed', 'processing']),
             ],
-        states = {
+        states={
             'readonly': ~Bool(Eval('milestone_group')),
         },
-        depends=['party'])
+        depends=['party', 'milestone_group'])
     sale_lines = fields.One2Many('work.project.sale.line', 'project',
         'Sale Lines')
     amount_milestones = fields.Function(fields.Numeric('Amount In Milestones',
@@ -426,7 +426,7 @@ class Sale:
     @fields.depends('project', 'milestone_group')
     def on_change_project(self):
         changes = {'milestone_group': None}
-        if self.project:
+        if self.project and self.project.milestone_group:
             changes['milestone_group'] = self.project.milestone_group.id
         return changes
 
