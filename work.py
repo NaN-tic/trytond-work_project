@@ -152,7 +152,6 @@ class Project(ModelSQL, ModelView):
     sales = fields.One2Many('sale.sale', 'project', 'Sales',
         domain=[
             ('party', '=', Eval('party', -1)),
-            ('invoice_method', '=', 'milestone'),
             ('milestone_group', '=', Eval('milestone_group', -1)),
             ],
         add_remove=[
@@ -255,7 +254,7 @@ class Project(ModelSQL, ModelView):
         return 2
 
     @classmethod
-    def get_amount_milestones(self, projects, names):
+    def get_amount_milestones(cls, projects, names):
         res = {}
         for name in names:
             res[name] = dict((p.id, _ZERO) for p in projects)
@@ -405,15 +404,14 @@ class ShipmentWork:
 
 class Sale:
     __name__ = 'sale.sale'
-    project = fields.Many2One('work.project', 'Project',
-        states={
-            'invisible': Eval('invoice_method') != 'milestone',
-            'readonly': ~Eval('state').in_(['draft', 'quotation']),
-            },
-        domain=[
+    project = fields.Many2One('work.project', 'Project', domain=[
             ('party', '=', Eval('party')),
             ],
-        depends=['party', 'invoice_method'])
+        states={
+            'invisible': ~Bool(Eval('milestone_group')),
+            'readonly': ~Eval('state').in_(['draft', 'quotation']),
+            },
+        depends=['party', 'milestone_group'])
 
     @classmethod
     def __setup__(cls):
@@ -421,7 +419,7 @@ class Sale:
         readonly = cls.milestone_group.states['readonly']
         cls.milestone_group.states.update({
                 'readonly': Bool(Eval('project')) | readonly,
-            })
+                })
 
     @fields.depends('project', 'milestone_group')
     def on_change_project(self):
@@ -441,15 +439,6 @@ class Sale:
                     value['milestone_group'] = project.milestone_group.id
         sales = super(Sale, cls).create(vlist)
         return sales
-
-    @classmethod
-    def write(cls, *args):
-        actions = iter(args)
-        all_sales = []
-        for sales, _ in zip(actions, actions):
-            all_sales += sales
-        super(Sale, cls).write(*args)
-
 
 
 class MilestoneGroup:
