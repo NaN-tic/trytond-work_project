@@ -125,10 +125,6 @@ class Project(ModelSQL, ModelView):
             ('party', '=', Eval('party')),
             ('company', '=', Eval('company')),
             ],
-        states={
-            # TODO: required if id > 0?
-            'readonly': (Eval('id', 0) > 0) & Bool(Eval('milestone_group', 0)),
-            },
         depends=['id', 'party', 'company'])
     milestones = fields.Function(fields.One2Many('account.invoice.milestone',
             None, 'Milestones',
@@ -152,14 +148,11 @@ class Project(ModelSQL, ModelView):
     sales = fields.One2Many('sale.sale', 'project', 'Sales',
         domain=[
             ('party', '=', Eval('party', -1)),
-            ('milestone_group', '=', Eval('milestone_group', -1)),
+            ('milestone_group', 'in', [Eval('milestone_group', -1), None]),
             ],
         add_remove=[
             ('state', 'in', ['quotation', 'confirmed', 'processing']),
             ],
-        states={
-            'readonly': ~Bool(Eval('milestone_group')),
-        },
         depends=['party', 'milestone_group'])
     sale_lines = fields.One2Many('work.project.sale.line', 'project',
         'Sale Lines')
@@ -378,7 +371,6 @@ class Project(ModelSQL, ModelView):
         'Fill the reference field with the sale sequence'
         pool = Pool()
         Sequence = pool.get('ir.sequence')
-        MilestoneGroup = pool.get('account.invoice.milestone.group')
         Config = pool.get('work.project.configuration')
 
         config = Config(1)
@@ -386,11 +378,22 @@ class Project(ModelSQL, ModelView):
             if not value.get('code'):
                 code = Sequence.get_id(config.project_sequence.id)
                 value['code'] = code
-            if not value.get('milestone_group'):
-                vals = {'party': value.get('party')}
-                group, = MilestoneGroup.create([vals])
-                value['milestone_group'] = group.id
         return super(Project, cls).create(vlist)
+
+
+    @fields.depends('milestone_group')
+    def on_change_milestone_group(self, name=None):
+        sales = []
+        if self.milestone_group and self.milestone_group.sales:
+            sales += [x.id for x in self.milestone_group.sales or []]
+
+        for sale in self.sales:
+            if not sale.milestone_group:
+                sales.append(sale.id)
+
+        changes = {}
+        changes['sales'] = sales
+        return changes
 
 
 class ShipmentWork:
@@ -408,18 +411,9 @@ class Sale:
             ('party', '=', Eval('party')),
             ],
         states={
-            'invisible': ~Bool(Eval('milestone_group')),
             'readonly': ~Eval('state').in_(['draft', 'quotation']),
             },
-        depends=['party', 'milestone_group'])
-
-    @classmethod
-    def __setup__(cls):
-        super(Sale, cls).__setup__()
-        readonly = cls.milestone_group.states['readonly']
-        cls.milestone_group.states.update({
-                'readonly': Bool(Eval('project')) | readonly,
-                })
+        depends=['party'])
 
     @fields.depends('project', 'milestone_group')
     def on_change_project(self):
@@ -427,18 +421,6 @@ class Sale:
         if self.project and self.project.milestone_group:
             changes['milestone_group'] = self.project.milestone_group.id
         return changes
-
-    @classmethod
-    def create(cls, vlist):
-        pool = Pool()
-        Project = pool.get('work.project')
-        for value in vlist:
-            if value.get('project'):
-                project = Project(value.get('project'))
-                if project.milestone_group:
-                    value['milestone_group'] = project.milestone_group.id
-        sales = super(Sale, cls).create(vlist)
-        return sales
 
 
 class MilestoneGroup:
