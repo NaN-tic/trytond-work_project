@@ -380,7 +380,6 @@ class Project(ModelSQL, ModelView):
                 value['code'] = code
         return super(Project, cls).create(vlist)
 
-
     @fields.depends('milestone_group')
     def on_change_milestone_group(self, name=None):
         sales = []
@@ -399,10 +398,13 @@ class Project(ModelSQL, ModelView):
 class ShipmentWork:
     __name__ = 'shipment.work'
     project = fields.Many2One('work.project', 'Project',
+        domain=[
+            ('party', '=', Eval('party')),
+            ],
         states={
             'readonly': Eval('state').in_(['checked', 'cancel']),
             },
-        depends=['state'])
+        depends=['state', 'party'])
 
 
 class Sale:

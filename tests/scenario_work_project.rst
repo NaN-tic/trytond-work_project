@@ -188,6 +188,21 @@ Create product::
     >>> service.template = template
     >>> service.save()
 
+    >>> advancement = Product()
+    >>> template = ProductTemplate()
+    >>> template.name = 'Advancment'
+    >>> template.default_uom = unit
+    >>> template.type = 'service'
+    >>> template.list_price = Decimal('0')
+    >>> template.cost_price = Decimal('0')
+    >>> template.cost_price_method = 'fixed'
+    >>> template.account_expense = expense
+    >>> template.account_revenue = revenue
+    >>> template.save()
+    >>> advancement.template = template
+    >>> advancement.save()
+
+
 Create payment term::
 
     >>> PaymentTerm = Model.get('account.invoice.payment_term')
@@ -248,48 +263,15 @@ Create a Project::
     >>> project.margin_percent_other
     Decimal('1.0')
 
-Configure milestones::
+Configure shipment work::
 
-    >>> AccountConfiguration = Model.get('account.configuration')
-    >>> milestone_sequence, = Sequence.find([
-    ...     ('code', '=', 'account.invoice.milestone'),
+    >>> StockConfiguration = Model.get('stock.configuration')
+    >>> shipment_work_sequence, = Sequence.find([
+    ...     ('code', '=', 'shipment.work'),
     ...     ], limit=1)
-    >>> milestone_group_sequence, = Sequence.find([
-    ...     ('code', '=', 'account.invoice.milestone.group'),
-    ...     ], limit=1)
-    >>> account_config = AccountConfiguration(1)
-    >>> account_config.milestone_advancement_product = advancement
-    >>> account_config.milestone_sequence = milestone_sequence
-    >>> account_config.milestone_group_sequence = milestone_group_sequence
-    >>> account_config.save()
-
-Create a milestone and confirm the sale::
-
-    >>> MileStoneGroup = Model.get('account.invoice.milestone.group')
-    >>> SaleLine = Model.get('sale.line')
-    >>> group = MileStoneGroup(party=customer)
-    >>> first_milestone = group.lines.new()
-    >>> first_milestone.invoice_method = 'amount'
-    >>> first_milestone.trigger = 'manual'
-    >>> first_milestone.amount = Decimal('150.0')
-    >>> product_line  = SaleLine(sale.lines[0].id)
-    >>> first_milestone.trigger_lines.append(product_line)
-    >>> second_milestone = group.lines.new()
-    >>> second_milestone.invoice_method = 'amount'
-    >>> second_milestone.trigger = 'manual'
-    >>> second_milestone.amount = Decimal('100.0')
-    >>> service_line  = SaleLine(sale.lines[1].id)
-    >>> second_milestone.trigger_lines.append(service_line)
-    >>> group.save()
-    >>> sale.invoice_method = 'milestone'
-    >>> sale.milestone_group = group
-    >>> sale.click('quote')
-    >>> sale.click('confirm')
-    >>> project.reload()
-    >>> project.amount_to_assign
-    Decimal('265.00')
-    >>> project.amount_milestones
-    Decimal('265.00')
+    >>> stock_config = StockConfiguration(1)
+    >>> stock_config.shipment_work_sequence = shipment_work_sequence
+    >>> stock_config.save()
 
 Create a shipment work and check that the cost is updated::
 
@@ -302,12 +284,14 @@ Create a shipment work and check that the cost is updated::
     >>> shipment, = project.work_shipments
     >>> shipment.click('pending')
     >>> shipment.planned_date = today
+    >>> shipment.employees.append(Employee(employee.id))
     >>> shipment.click('plan')
     >>> shipment.done_description = 'Done'
     >>> shipment.click('done')
     >>> timesheet = shipment.timesheet_lines.new()
     >>> timesheet.employee = employee
     >>> timesheet.hours = 3.0
+    >>> timesheet.work = shipment.work
     >>> shipment.save()
     >>> project.reload()
     >>> project.expense_labor
