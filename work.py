@@ -10,32 +10,11 @@ from trytond.pool import Pool, PoolMeta
 from trytond.config import config
 DIGITS = int(config.get('digits', 'unit_price_digits', 4))
 
-__all__ = ['ProjectMilestoneGroup', 'ProjectSaleLine', 'Project',
-    'ShipmentWork', 'Sale', 'MilestoneGroup']
+__all__ = ['ProjectSaleLine', 'Project', 'ShipmentWork', 'Sale']
+
 __metaclass__ = PoolMeta
 
 _ZERO = Decimal('0.0')
-
-
-class ProjectMilestoneGroup(ModelSQL):
-    'Project - Milestone'
-    __name__ = 'work.project-account.invoice.milestone.group'
-    _table = 'work_project_milestone_group_rel'
-    project = fields.Many2One('work.project', 'Project', ondelete='CASCADE',
-        required=True, select=True)
-    milestone_group = fields.Many2One('account.invoice.milestone.group',
-        'Milestone Group',
-        ondelete='CASCADE', required=True, select=True)
-
-    @classmethod
-    def __setup__(cls):
-        super(ProjectMilestoneGroup, cls).__setup__()
-        cls._sql_constraints += [
-            ('project_unique', 'UNIQUE(project)',
-                'The Project must be unique.'),
-            ('milestone_group_unique', 'UNIQUE(milestone_group)',
-                'The Milestone Group must be unique.'),
-            ]
 
 
 class ProjectSaleLine(ModelSQL, ModelView):
@@ -118,25 +97,6 @@ class Project(ModelSQL, ModelView):
     code_readonly = fields.Function(fields.Boolean('Code Readonly'),
         'get_code_readonly')
     party = fields.Many2One('party.party', 'Party', required=True)
-    milestone_group = fields.One2One(
-        'work.project-account.invoice.milestone.group',
-        'project', 'milestone_group', 'Milestone Group',
-        domain=[
-            ('party', '=', Eval('party')),
-            ('company', '=', Eval('company')),
-            ],
-        depends=['id', 'party', 'company'])
-    milestones = fields.Function(fields.One2Many('account.invoice.milestone',
-            None, 'Milestones',
-            domain=[
-                ('group', '=', Eval('milestone_group')),
-                ],
-            states={
-                'invisible': ~Bool(Eval('milestone_group')),
-                },
-            depends=['milestone_group']),
-        'get_milestones', setter='set_milestones')
-    start_date = fields.Date('Start Date')
     end_date = fields.Date('End Date')
     maintenance = fields.Boolean('Maintenance')
     work_shipments = fields.One2Many('shipment.work', 'project',
@@ -147,27 +107,22 @@ class Project(ModelSQL, ModelView):
         depends=['party'])
     sales = fields.One2Many('sale.sale', 'project', 'Sales',
         domain=[
-            ('party', '=', Eval('party', -1)),
-            ('milestone_group', 'in', [Eval('milestone_group', -1), None]),
+            ('party', '=', Eval('party', -1))
             ],
         add_remove=[
             ('state', 'in', ['quotation', 'confirmed', 'processing']),
             ],
-        depends=['party', 'milestone_group'])
+        depends=['party'])
     sale_lines = fields.One2Many('work.project.sale.line', 'project',
-        'Sale Lines')
-    amount_milestones = fields.Function(fields.Numeric('Amount In Milestones',
-            digits=(16, Eval('currency_digits', 2)),
-            depends=['currency_digits']),
-        'get_amount_milestones')
-    amount_to_assign = fields.Function(fields.Numeric('Amount to Assign',
-            digits=(16, Eval('currency_digits', 2)),
-            depends=['currency_digits']),
-        'get_amount_milestones')
+        'Sale Lines', readonly=True)
     amount_to_invoice = fields.Function(fields.Numeric('Amount To Invoice',
             digits=(16, Eval('currency_digits', 2)),
             depends=['currency_digits']),
-        'get_amount_milestones')
+        'get_amount_to_invoice')
+    invoiced_amount = fields.Function(fields.Numeric('Invoiced Amount',
+            digits=(16, Eval('currency_digits', 2)),
+            depends=['currency_digits']),
+        'get_amount_to_invoice')
     shipments = fields.Function(fields.One2Many('stock.shipment.out',
             None, 'Shipments'), 'get_shipments')
     shipment_returns = fields.Function(fields.One2Many(
@@ -221,6 +176,9 @@ class Project(ModelSQL, ModelView):
             digits=(16, 4)),
         'get_margins')
     note = fields.Text('Note')
+    invoices = fields.Function(fields.One2Many('account.invoice', None,
+        'Invoices'), 'get_invoices')
+
 
     @staticmethod
     def default_currency_digits():
@@ -245,21 +203,6 @@ class Project(ModelSQL, ModelView):
         if self.company:
             return self.company.currency.digits
         return 2
-
-    @classmethod
-    def get_amount_milestones(cls, projects, names):
-        res = {}
-        for name in names:
-            res[name] = dict((p.id, _ZERO) for p in projects)
-        for project in projects:
-            for fname in names:
-                if fname == 'amount_milestones':
-                    group_fname = 'total_amount'
-                else:
-                    group_fname = fname
-                res[fname][project.id] += getattr(project.milestone_group,
-                    group_fname, _ZERO)
-        return res
 
     def is_labour_line(self, line):
         'Returns True if the sale line is of labour type'
@@ -339,6 +282,22 @@ class Project(ModelSQL, ModelView):
                 res[name][project.id] = value
         return res
 
+    @classmethod
+    def get_amount_to_invoice(cls, projects, names):
+        res = {}
+        for name in names:
+            res[name] = dict((p.id, _ZERO) for p in projects)
+
+        for project in projects:
+            amount_to_invoice = Decimal('0.00')
+            invoiced_amount = Decimal('0.00')
+            for sale in project.sales:
+                amount_to_invoice += sale.amount_to_invoice()
+                invoiced_amount += sale.invoiced_amount()
+            res['amount_to_invoice'][project.id] = amount_to_invoice
+            res['invoiced_amount'][project.id] = invoiced_amount
+        return res
+
     def get_code_readonly(self, name):
         return True
 
@@ -351,20 +310,8 @@ class Project(ModelSQL, ModelView):
     def get_shipment_returns(self, name):
         return [m.id for s in self.sales for m in s.shipment_returns]
 
-    def get_milestones(self, name=None):
-        if not self.milestone_group:
-            return []
-        return [m.id for m in self.milestone_group.milestones]
-
-    @classmethod
-    def set_milestones(cls, projects, name, value):
-        pool = Pool()
-        MilestoneGroup = pool.get('account.invoice.milestone.group')
-        groups = [p.milestone_group for p in projects if p.milestone_group]
-        if groups:
-            MilestoneGroup.write(groups, {
-                    'milestones': value,
-                    })
+    def get_invoices(self, name):
+        return [m.id for s in self.sales for m in s.invoices]
 
     @classmethod
     def create(cls, vlist):
@@ -379,20 +326,6 @@ class Project(ModelSQL, ModelView):
                 code = Sequence.get_id(config.project_sequence.id)
                 value['code'] = code
         return super(Project, cls).create(vlist)
-
-    @fields.depends('milestone_group')
-    def on_change_milestone_group(self, name=None):
-        sales = []
-        if self.milestone_group and self.milestone_group.sales:
-            sales += [x.id for x in self.milestone_group.sales or []]
-
-        for sale in self.sales:
-            if not sale.milestone_group:
-                sales.append(sale.id)
-
-        changes = {}
-        changes['sales'] = sales
-        return changes
 
 
 class ShipmentWork:
@@ -417,20 +350,13 @@ class Sale:
             },
         depends=['party'])
 
-    @fields.depends('project', 'milestone_group')
-    def on_change_project(self):
-        changes = {'milestone_group': None}
-        if self.project and self.project.milestone_group:
-            changes['milestone_group'] = self.project.milestone_group.id
-        return changes
+    def invoiced_amount(self):
+        amount = Decimal('0.00')
+        for invoice in self.invoices:
+            amount += invoice.untaxed_amount
+        return amount
+
+    def amount_to_invoice(self):
+        return self.untaxed_amount - self.invoiced_amount()
 
 
-class MilestoneGroup:
-    __name__ = 'account.invoice.milestone.group'
-    project = fields.One2One('work.project-account.invoice.milestone.group',
-        'milestone_group', 'project', 'Project', readonly=True,
-        domain=[
-            ('party', '=', Eval('party')),
-            ('company', '=', Eval('company')),
-            ],
-        depends=['party', 'company'])

@@ -10,9 +10,9 @@ def register():
         Configuration,
         ConfigurationCompany,
         Project,
-        ProjectMilestoneGroup,
+        # ProjectMilestoneGroup,
         ProjectSaleLine,
         Sale,
         ShipmentWork,
-        MilestoneGroup,
+        # MilestoneGroup,
         module='work_project', type_='model')

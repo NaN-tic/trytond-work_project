@@ -8,21 +8,13 @@
     <field name="company"/>
     <label name="party"/>
     <field name="party"/>
-    <label name="milestone_group"/>
-    <field name="milestone_group"/>
-    <label name="start_date"/>
-    <field name="start_date"/>
-    <label name="end_date"/>
-    <field name="end_date"/>
     <notebook>
         <page id="amounts" string="Amounts" col="6">
             <separator id="invoice" string="Invoice" colspan="6"/>
-            <label name="amount_to_assign"/>
-            <field name="amount_to_assign"/>
+            <label name="invoiced_amount"/>
+            <field name="invoiced_amount"/>
             <label name="amount_to_invoice"/>
             <field name="amount_to_invoice"/>
-            <label name="amount_milestones"/>
-            <field name="amount_milestones"/>
             <separator id="income" string="Income" colspan="6"/>
             <label name="income_labor"/>
             <field name="income_labor"/>
@@ -55,8 +47,8 @@
             <field name="sales"/>
             <field name="sale_lines"/>
         </page>
-        <page name="milestones">
-            <field name="milestones"/>
+        <page name="invoices">
+            <field name="invoices"/>
         </page>
         <page name="work_shipments">
             <field name="work_shipments"/>

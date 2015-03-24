@@ -138,18 +138,6 @@
             <field name="action" ref="act_timesheet_lines_form"/>
         </record>
 
-        <record model="ir.action.act_window" id="act_invoices_form">
-            <field name="name">Invoices</field>
-            <field name="res_model">account.invoice</field>
-            <field name="domain">[('milestone.group.project', 'in', Eval('active_ids'))]</field>
-        </record>
-        <record model="ir.action.keyword"
-                id="act_open_invoices_keyword1">
-            <field name="keyword">form_relate</field>
-            <field name="model">work.project,-1</field>
-            <field name="action" ref="act_invoices_form"/>
-        </record>
-
         <!-- work.project.sale.line-->
         <record model="ir.ui.view" id="project_sale_line_view_form">
             <field name="model">work.project.sale.line</field>
