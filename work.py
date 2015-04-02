@@ -346,9 +346,11 @@ class Sale:
             ('party', '=', Eval('party')),
             ],
         states={
-            'readonly': ~Eval('state').in_(['draft', 'quotation']),
+            'readonly': ~Eval('state').in_(['draft', 'quotation',
+                 'confirmed']),
+            'required': Eval('state').in_(['processing', 'done']),
             },
-        depends=['party'])
+        depends=['party', 'state'])
 
     def invoiced_amount(self):
         amount = Decimal('0.00')
