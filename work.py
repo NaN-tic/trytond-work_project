@@ -97,6 +97,7 @@ class Project(ModelSQL, ModelView):
     code_readonly = fields.Function(fields.Boolean('Code Readonly'),
         'get_code_readonly')
     party = fields.Many2One('party.party', 'Party', required=True)
+    start_date = fields.Date('Start Date')
     end_date = fields.Date('End Date')
     maintenance = fields.Boolean('Maintenance')
     work_shipments = fields.One2Many('shipment.work', 'project',
