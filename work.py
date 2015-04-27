@@ -2,9 +2,10 @@
 # copyright notices and license terms.
 from decimal import Decimal
 from sql.aggregate import Max, Sum, Avg
+from sql.operators import NotIn
 
 from trytond.model import ModelSQL, ModelView, fields
-from trytond.pyson import Eval, If, Bool
+from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 from trytond.pool import Pool, PoolMeta
 from trytond.config import config
@@ -72,7 +73,7 @@ class ProjectSaleLine(ModelSQL, ModelView):
             *columns,
             where=((table.type == 'line') &
                 (sale.project != None) &
-                (sale.state != 'cancel')
+                (NotIn(sale.state, ['cancel', 'draft', 'quotation']))
                 ),
             group_by=(sale.project, sale.currency, table.product, table.unit))
 
