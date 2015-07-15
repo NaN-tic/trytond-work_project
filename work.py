@@ -279,8 +279,11 @@ class Project(ModelSQL, ModelView):
                         value = Decimal('1.0')
                     else:
                         value = (income - expense) / expense
+                    digits = getattr(cls, name).digits[1]
                 else:
                     value = income - expense
+                    digits = project.currency_digits
+                value = value.quantize(Decimal(str(10 ** - digits)))
                 res[name][project.id] = value
         return res
 

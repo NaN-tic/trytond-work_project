@@ -268,15 +268,15 @@ Create a Project::
     >>> project.margin_labor
     Decimal('150.00')
     >>> project.margin_percent_labor
-    Decimal('1.0')
+    Decimal('1.0000')
     >>> project.margin_material
     Decimal('20.00')
     >>> project.margin_percent_material
-    Decimal('0.25')
+    Decimal('0.2500')
     >>> project.margin_other
     Decimal('15.00')
     >>> project.margin_percent_other
-    Decimal('1.0')
+    Decimal('1.0000')
 
 Configure shipment work::
 
@@ -314,7 +314,7 @@ Create a shipment work and check that the cost is updated::
     >>> project.margin_labor
     Decimal('120.00')
     >>> project.margin_percent_labor
-    Decimal('4')
+    Decimal('4.0000')
 
 When invoicing the shipment work the new sale is related to the project::
 
