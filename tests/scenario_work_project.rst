@@ -154,6 +154,7 @@ Create product::
 
     >>> ProductUom = Model.get('product.uom')
     >>> unit, = ProductUom.find([('name', '=', 'Unit')])
+    >>> hour, = ProductUom.find([('name', '=', 'Hour')])
     >>> ProductTemplate = Model.get('product.template')
     >>> Product = Model.get('product.product')
     >>> product = Product()
@@ -188,19 +189,33 @@ Create product::
     >>> service.template = template
     >>> service.save()
 
-    >>> advancement = Product()
+    >>> hours_product = Product()
     >>> template = ProductTemplate()
-    >>> template.name = 'Advancment'
-    >>> template.default_uom = unit
+    >>> template.name = 'Hours product'
+    >>> template.category = category
+    >>> template.default_uom = hour
     >>> template.type = 'service'
-    >>> template.list_price = Decimal('0')
-    >>> template.cost_price = Decimal('0')
+    >>> template.purchasable = True
+    >>> template.salable = True
+    >>> template.list_price = Decimal('10')
+    >>> template.cost_price = Decimal('8')
     >>> template.cost_price_method = 'fixed'
     >>> template.account_expense = expense
     >>> template.account_revenue = revenue
     >>> template.save()
-    >>> advancement.template = template
-    >>> advancement.save()
+    >>> hours_product.template = template
+    >>> hours_product.save()
+
+Configure shipment work::
+
+    >>> StockConfig = Model.get('stock.configuration')
+    >>> stock_config = StockConfig(1)
+    >>> shipment_work_sequence, = Sequence.find([
+    ...     ('code', '=', 'shipment.work'),
+    ...     ])
+    >>> stock_config.shipment_work_sequence = shipment_work_sequence
+    >>> stock_config.shipment_work_hours_product = hours_product
+    >>> stock_config.save()
 
 
 Create payment term::
@@ -300,3 +315,10 @@ Create a shipment work and check that the cost is updated::
     Decimal('120.00')
     >>> project.margin_percent_labor
     Decimal('4')
+
+When invoicing the shipment work the new sale is related to the project::
+
+    >>> shipment.click('check')
+    >>> sale, = shipment.sales
+    >>> sale.project == project
+    True

@@ -341,6 +341,11 @@ class ShipmentWork:
             },
         depends=['state', 'party'])
 
+    def get_sale(self, invoice_method):
+        sale = super(ShipmentWork, self).get_sale(invoice_method)
+        sale.project = self.project
+        return sale
+
 
 class Sale:
     __name__ = 'sale.sale'
