@@ -255,7 +255,7 @@ class Project(ModelSQL, ModelView):
                     if hasattr(line, 'cost_price'):
                         amount += sale.currency.round(
                             Decimal(str(line.quantity)) * (line.cost_price or
-                                _ZERO)
+                                _ZERO))
                     else:
                         amount += sale.currency.round(line.product.cost_price *
                             Decimal(str(line.quantity)))
