@@ -70,6 +70,14 @@ msgctxt "field:work.project,income_other:"
 msgid "Income Other"
 msgstr "Altres ingressos"
 
+msgctxt "field:work.project,invoiced_amount:"
+msgid "Invoiced Amount"
+msgstr "Import facturat"
+
+msgctxt "field:work.project,invoices:"
+msgid "Invoices"
+msgstr "Factures"
+
 msgctxt "field:work.project,maintenance:"
 msgid "Maintenance"
 msgstr "Manteniment"
@@ -269,6 +277,10 @@ msgstr "Usuari modificació"
 msgctxt "model:ir.action,name:act_configuration_form"
 msgid "Project Configuration"
 msgstr "Configuració projectes"
+
+msgctxt "model:ir.action,name:act_open_sales"
+msgid "Sales"
+msgstr "Vendes"
 
 msgctxt "model:ir.action,name:act_project_related_purchase_invoices"
 msgid "Project Purchase Invoices"

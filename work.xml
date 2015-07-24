@@ -182,6 +182,16 @@
             <field name="inherit" ref="shipment_work.shipment_work_view_list"/>
             <field name="name">shipment_work_list</field>
         </record>
+        <record model="ir.action.act_window" id="act_open_sales">
+            <field name="name">Sales</field>
+            <field name="res_model">sale.sale</field>
+            <field name="domain">[('project', 'in', Eval('active_ids'))]</field>
+        </record>
+        <record model="ir.action.keyword" id="act_open_sales_keyword1">
+            <field name="keyword">form_relate</field>
+            <field name="model">work.project,-1</field>
+            <field name="action" ref="act_open_sales"/>
+        </record>
 
         <!-- menus -->
         <menuitem action="act_work_project" id="menu_work_project"
