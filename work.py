@@ -117,6 +117,10 @@ class Project(ModelSQL, ModelView):
         depends=['party'])
     sale_lines = fields.One2Many('work.project.sale.line', 'project',
         'Sale Lines', readonly=True)
+    supplier_invoice_lines = fields.One2Many('account.invoice.line',
+        'work_project', 'Supplier Invoice Lines', domain=[
+            ('invoice.type', 'in', ['in_invoice', 'in_credit_note']),
+            ])
     amount_to_invoice = fields.Function(fields.Numeric('Amount To Invoice',
             digits=(16, Eval('currency_digits', 2)),
             depends=['currency_digits']),
@@ -371,5 +375,3 @@ class Sale:
 
     def amount_to_invoice(self):
         return self.untaxed_amount - self.invoiced_amount()
-
-

@@ -2,6 +2,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "field:account.invoice.line,work_project:"
+msgid "Work Project"
+msgstr "Projecte de treball"
+
 msgctxt "field:sale.sale,project:"
 msgid "Project"
 msgstr "Projecte"
@@ -141,6 +145,10 @@ msgstr "Albarans"
 msgctxt "field:work.project,start_date:"
 msgid "Start Date"
 msgstr "Data inicial"
+
+msgctxt "field:work.project,supplier_invoice_lines:"
+msgid "Supplier Invoice Lines"
+msgstr "Línies de factura de proveïdor"
 
 msgctxt "field:work.project,work_shipments:"
 msgid "Shipment Works"

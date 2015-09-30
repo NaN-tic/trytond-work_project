@@ -3,6 +3,7 @@
 from trytond.pool import Pool
 from .work import *
 from .configuration import *
+from .invoice import *
 
 
 def register():
@@ -14,5 +15,6 @@ def register():
         ProjectSaleLine,
         Sale,
         ShipmentWork,
+        InvoiceLine,
         # MilestoneGroup,
         module='work_project', type_='model')

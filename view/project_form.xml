@@ -62,6 +62,9 @@
             <field name="shipments" colspan="4"/>
             <field name="shipment_returns" colspan="4"/>
         </page>
+        <page name="supplier_invoice_lines">
+            <field name="supplier_invoice_lines" colspan="4" widget="many2many"/>
+        </page>
         <page name="note">
             <field name="note" colspan="4"/>
         </page>
