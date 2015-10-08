@@ -210,7 +210,7 @@
         <record model="ir.action.act_window" id="act_project_related_purchases">
             <field name="name">Project Purchases</field>
             <field name="res_model">purchase.purchase</field>
-            <field name="domain">[('sales.project', 'in', Eval('active_ids'))]</field>
+            <field name="domain">[('lines.sale_lines.sale.project', 'in', Eval('active_ids'))]</field>
         </record>
         <record model="ir.action.keyword"
                 id="act_open_purchases_keyword1">
@@ -223,7 +223,7 @@
                 id="act_project_related_purchase_invoices">
             <field name="name">Project Purchase Invoices</field>
             <field name="res_model">account.invoice</field>
-            <field name="domain">[('lines.origin.purchase.sales.project', 'in', Eval('active_ids'), 'purchase.line')]</field>
+            <field name="domain">[('lines.origin.purchase.lines.sale_lines.sale.project', 'in', Eval('active_ids'), 'purchase.line')]</field>
         </record>
         <record model="ir.action.keyword"
                 id="act_open_purchase_invoices_keyword1">
