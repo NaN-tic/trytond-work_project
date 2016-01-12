@@ -8,8 +8,7 @@ from trytond.model import ModelSQL, ModelView, fields
 from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 from trytond.pool import Pool, PoolMeta
-from trytond.config import config
-DIGITS = int(config.get('digits', 'unit_price_digits', 4))
+from trytond.modules.product import price_digits
 
 __all__ = ['ProjectSaleLine', 'Project', 'ShipmentWork', 'Sale']
 
@@ -32,7 +31,7 @@ class ProjectSaleLine(ModelSQL, ModelView):
     currency = fields.Many2One('currency.currency', 'Currency')
     currency_digits = fields.Function(fields.Integer('Currency Digits'),
         'on_change_with_currency_digits')
-    unit_price = fields.Numeric('Unit Price', digits=(16, DIGITS))
+    unit_price = fields.Numeric('Unit Price', digits=price_digits)
     amount = fields.Function(fields.Numeric('Amount',
             digits=(16, Eval('currency_digits', 2)),
             depends=['currency_digits']),
