@@ -254,14 +254,13 @@ class Project(ModelSQL, ModelView):
         for sale in self.sales:
             for line in sale.lines:
                 if line.product and line.product.type != 'service':
+                    qty = Decimal(str(line.quantity or 0))
                     # Compatibility with sale_margin
                     if hasattr(line, 'cost_price'):
-                        amount += sale.currency.round(
-                            Decimal(str(line.quantity)) * (line.cost_price or
-                                _ZERO))
+                        cost_price = line.cost_price or _ZERO
                     else:
-                        amount += sale.currency.round(line.product.cost_price *
-                            Decimal(str(line.quantity)))
+                        cost_price = line.product.cost_price
+                    amount += sale.currency.round(cost_price * qty)
         return amount
 
     def get_expense_other(self, name):
