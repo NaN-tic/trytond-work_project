@@ -3,10 +3,9 @@
 from trytond.model import Model, ModelSQL, ModelView, ModelSingleton, fields
 from trytond.pyson import Eval
 from trytond.transaction import Transaction
-from trytond.pool import Pool, PoolMeta
+from trytond.pool import Pool
 
 __all__ = ['Configuration', 'ConfigurationCompany']
-__metaclass__ = PoolMeta
 
 
 class Configuration(ModelSingleton, ModelSQL, ModelView):
