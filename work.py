@@ -243,9 +243,9 @@ class Project(ModelSQL, ModelView):
 
     def get_expense_labor(self, name):
         amount = _ZERO
-        for shipment_work in self.work_shipments:
-            for line in shipment_work.timesheet_lines:
-                amount += line.compute_cost()
+        # for shipment_work in self.work_shipments:
+        #     for line in shipment_work.timesheet_lines:
+        #         amount += line.compute_cost()
         return amount
 
     def get_expense_material(self, name):
@@ -360,13 +360,7 @@ class Sale:
 
     project = fields.Many2One('work.project', 'Project', domain=[
             ('party', '=', Eval('party')),
-            ],
-        states={
-            'readonly': ~Eval('state').in_(['draft', 'quotation',
-                 'confirmed']),
-            'required': Eval('state').in_(['processing', 'done']),
-            },
-        depends=['party', 'state'])
+            ])
 
     def invoiced_amount(self):
         amount = Decimal('0.00')
