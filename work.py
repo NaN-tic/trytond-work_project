@@ -330,9 +330,20 @@ class Project(ModelSQL, ModelView):
         config = Config(1)
         for value in vlist:
             if not value.get('code'):
-                code = Sequence.get_id(config.project_sequence.id)
+                if config.project_sequence:
+                    code = Sequence.get_id(config.project_sequence.id)
+                else:
+                    code = None
                 value['code'] = code
         return super(Project, cls).create(vlist)
+
+    @classmethod
+    def copy(cls, projects, default=None):
+        if default is None:
+            default = {}
+        default = default.copy()
+        default['code'] = None
+        return super(Project, cls).copy(projects, default=default)
 
 
 class ShipmentWork:
