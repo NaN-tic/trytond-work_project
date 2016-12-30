@@ -4,8 +4,8 @@
 <data>
     <xpath expr="/form/notebook/page[@id='other']/separator[@name='comment']"
         position="before">
-        <label name="project"/>
-        <field name="project"/>
+        <label name="work_project"/>
+        <field name="work_project"/>
         <newline/>
     </xpath>
 </data>

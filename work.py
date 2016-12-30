@@ -369,7 +369,7 @@ class Sale:
     __name__ = 'sale.sale'
     __metaclass__ = PoolMeta
 
-    project = fields.Many2One('work.project', 'Project', domain=[
+    work_project = fields.Many2One('work.project', 'Project', domain=[
             ('party', '=', Eval('party')),
             ])
 
