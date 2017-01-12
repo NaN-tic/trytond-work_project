@@ -3,6 +3,6 @@
      copyright notices and license terms. -->
 <data>
     <xpath expr="/tree/field[@name='number']" position="after">
-        <field name="project"/>
+        <field name="work_project"/>
     </xpath>
 </data>
