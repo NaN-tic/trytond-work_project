@@ -14,7 +14,7 @@
     <field name="end_date"/>
     <notebook>
         <page id="amounts" string="Amounts">
-            <separator id="invoice" string="Invoice" colspan="6"/>
+            <!-- <separator id="invoice" string="Invoice" colspan="6"/>
             <label name="invoiced_amount"/>
             <field name="invoiced_amount"/>
             <label name="amount_to_invoice"/>
@@ -45,26 +45,26 @@
             <label name="margin_percent_material"/>
             <field name="margin_percent_material" factor="100"/>
             <label name="margin_percent_other"/>
-            <field name="margin_percent_other" factor="100"/>
+            <field name="margin_percent_other" factor="100"/> -->
         </page>
         <page name="sales">
             <field name="sales"/>
-            <field name="sale_lines"/>
+            <!-- <field name="sale_lines"/> -->
         </page>
-        <page name="invoices">
-            <field name="invoices"/>
-        </page>
+        <!-- <page name="invoices"> -->
+            <!-- <field name="invoices"/> -->
+        <!-- </page> -->
         <page name="work_shipments">
             <field name="work_shipments"/>
         </page>
-        <page string="Shipments" id="shipments">
+        <!-- <page string="Shipments" id="shipments">
             <field name="moves" colspan="4"/>
             <field name="shipments" colspan="4"/>
             <field name="shipment_returns" colspan="4"/>
         </page>
         <page name="supplier_invoice_lines">
             <field name="supplier_invoice_lines" colspan="4" widget="many2many"/>
-        </page>
+        </page> -->
         <page name="note">
             <field name="note" colspan="4"/>
         </page>

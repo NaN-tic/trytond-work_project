@@ -2,8 +2,8 @@
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
 <form string="Project Sale lines">
-    <label name="project"/>
-    <field name="project"/>
+    <label name="work_project"/>
+    <field name="work_project"/>
     <label name="product"/>
     <field name="product"/>
     <label name="quantity"/>

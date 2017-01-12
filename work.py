@@ -63,17 +63,17 @@ class ProjectSaleLine(ModelSQL, ModelView):
                 'write_date'):
             columns.append(Max(getattr(table, name)).as_(name))
 
-        columns.extend([sale.project, table.product, sale.currency, table.unit,
+        columns.extend([sale.work_project, table.product, sale.currency, table.unit,
                 Sum(table.quantity).as_('quantity'),
             Avg(table.unit_price).as_('unit_price')])
 
         return table.join(sale, condition=(sale.id == table.sale)).select(
             *columns,
             where=((table.type == 'line') &
-                (sale.project != None) &
+                (sale.work_project != None) &
                 (NotIn(sale.state, ['cancel', 'draft', 'quotation']))
                 ),
-            group_by=(sale.project, sale.currency, table.product, table.unit))
+            group_by=(sale.work_project, sale.currency, table.product, table.unit))
 
 
 class Project(ModelSQL, ModelView):
@@ -99,13 +99,13 @@ class Project(ModelSQL, ModelView):
     start_date = fields.Date('Start Date')
     end_date = fields.Date('End Date')
     maintenance = fields.Boolean('Maintenance')
-    work_shipments = fields.One2Many('shipment.work', 'project',
+    work_shipments = fields.One2Many('shipment.work', 'work_project',
         'Shipment Works',
         domain=[
             ('party', '=', Eval('party')),
             ],
         depends=['party'])
-    sales = fields.One2Many('sale.sale', 'project', 'Sales',
+    sales = fields.One2Many('sale.sale', 'work_project', 'Sales',
         domain=[
             ('party', '=', Eval('party', -1))
             ],
@@ -113,7 +113,7 @@ class Project(ModelSQL, ModelView):
             ('state', 'in', ['quotation', 'confirmed', 'processing']),
             ],
         depends=['party'])
-    sale_lines = fields.One2Many('work.project.sale.line', 'project',
+    sale_lines = fields.One2Many('work.project.sale.line', 'work_project',
         'Sale Lines', readonly=True)
     supplier_invoice_lines = fields.One2Many('account.invoice.line',
         'work_project', 'Supplier Invoice Lines', domain=[
@@ -350,7 +350,7 @@ class ShipmentWork:
     __name__ = 'shipment.work'
     __metaclass__ = PoolMeta
 
-    project = fields.Many2One('work.project', 'Project',
+    work_project = fields.Many2One('work.project', 'Project',
         domain=[
             ('party', '=', Eval('party')),
             ],
@@ -361,7 +361,7 @@ class ShipmentWork:
 
     def get_sale(self, invoice_method):
         sale = super(ShipmentWork, self).get_sale(invoice_method)
-        sale.project = self.project
+        sale.work_project = self.work_project
         return sale
 
 
