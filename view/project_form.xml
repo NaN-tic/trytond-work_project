@@ -55,7 +55,7 @@
             <!-- <field name="invoices"/> -->
         <!-- </page> -->
         <page name="work_shipments">
-            <!-- <field name="work_shipments"/> -->
+            <field name="work_shipments"/>
         </page>
         <!-- <page string="Shipments" id="shipments">
             <field name="moves" colspan="4"/>
