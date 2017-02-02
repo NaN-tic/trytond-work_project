@@ -350,7 +350,7 @@ class ShipmentWork:
     __name__ = 'shipment.work'
     __metaclass__ = PoolMeta
 
-    work_project = fields.Many2One('work.project', 'Project',
+    work_project = fields.Many2One('work.project', 'Project (old)',
         domain=[
             ('party', '=', Eval('party')),
             ],
@@ -369,7 +369,7 @@ class Sale:
     __name__ = 'sale.sale'
     __metaclass__ = PoolMeta
 
-    work_project = fields.Many2One('work.project', 'Project', domain=[
+    work_project = fields.Many2One('work.project', 'Project (old)', domain=[
             ('party', '=', Eval('party')),
             ])
 
