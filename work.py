@@ -371,7 +371,7 @@ class Sale:
 
     work_project = fields.Many2One('work.project', 'Project (old)', domain=[
             ('party', '=', Eval('party')),
-            ])
+            ], depends=['party'])
 
     def invoiced_amount(self):
         amount = Decimal('0.00')
