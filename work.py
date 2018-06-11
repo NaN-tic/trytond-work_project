@@ -9,9 +9,10 @@ from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 from trytond.pool import Pool, PoolMeta
 from trytond.config import config
-DIGITS = int(config.get('digits', 'unit_price_digits', 4))
 
-__all__ = ['ProjectSaleLine', 'Project', 'ShipmentWork', 'Sale']
+from trytond.modules.product import price_digits
+
+__all__ = ['ProjectSaleLine', 'Project', 'Sale']
 
 __metaclass__ = PoolMeta
 
@@ -32,7 +33,7 @@ class ProjectSaleLine(ModelSQL, ModelView):
     currency = fields.Many2One('currency.currency', 'Currency')
     currency_digits = fields.Function(fields.Integer('Currency Digits'),
         'on_change_with_currency_digits')
-    unit_price = fields.Numeric('Unit Price', digits=(16, DIGITS))
+    unit_price = fields.Numeric('Unit Price', digits=price_digits)
     amount = fields.Function(fields.Numeric('Amount',
             digits=(16, Eval('currency_digits', 2)),
             depends=['currency_digits']),
@@ -101,12 +102,6 @@ class Project(ModelSQL, ModelView):
     start_date = fields.Date('Start Date')
     end_date = fields.Date('End Date')
     maintenance = fields.Boolean('Maintenance')
-    work_shipments = fields.One2Many('shipment.work', 'project',
-        'Shipment Works',
-        domain=[
-            ('party', '=', Eval('party')),
-            ],
-        depends=['party'])
     sales = fields.One2Many('sale.sale', 'project', 'Sales',
         domain=[
             ('party', '=', Eval('party', -1))
@@ -148,10 +143,6 @@ class Project(ModelSQL, ModelView):
         digits=(16, Eval('currency_digits', 2)),
             depends=['currency_digits']),
         'get_income_other')
-    expense_labor = fields.Function(fields.Numeric('Expense Labor',
-            digits=(16, Eval('currency_digits', 2)),
-            depends=['currency_digits']),
-        'get_expense_labor')
     expense_material = fields.Function(fields.Numeric('Expense Material',
             digits=(16, Eval('currency_digits', 2)),
             depends=['currency_digits']),
@@ -243,12 +234,6 @@ class Project(ModelSQL, ModelView):
                     amount += line.amount
         return amount
 
-    def get_expense_labor(self, name):
-        amount = _ZERO
-        for shipment_work in self.work_shipments:
-            for line in shipment_work.timesheet_lines:
-                amount += line.compute_cost()
-        return amount
 
     def get_expense_material(self, name):
         amount = _ZERO
@@ -346,23 +331,6 @@ class Project(ModelSQL, ModelView):
         default = default.copy()
         default['code'] = None
         return super(Project, cls).copy(projects, default=default)
-
-
-class ShipmentWork:
-    __name__ = 'shipment.work'
-    project = fields.Many2One('work.project', 'Project',
-        domain=[
-            ('party', '=', Eval('party')),
-            ],
-        states={
-            'readonly': Eval('state').in_(['checked', 'cancel']),
-            },
-        depends=['state', 'party'])
-
-    def get_sale(self, invoice_method):
-        sale = super(ShipmentWork, self).get_sale(invoice_method)
-        sale.project = self.project
-        return sale
 
 
 class Sale:

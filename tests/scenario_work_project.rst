@@ -261,8 +261,6 @@ Create a Project::
     Decimal('15.00')
     >>> project.expense_material
     Decimal('80.00')
-    >>> project.expense_labor
-    Decimal('0.0')
     >>> project.expense_other
     Decimal('0.0')
     >>> project.margin_labor
@@ -277,48 +275,3 @@ Create a Project::
     Decimal('15.00')
     >>> project.margin_percent_other
     Decimal('1.0000')
-
-Configure shipment work::
-
-    >>> StockConfiguration = Model.get('stock.configuration')
-    >>> shipment_work_sequence, = Sequence.find([
-    ...     ('code', '=', 'shipment.work'),
-    ...     ], limit=1)
-    >>> stock_config = StockConfiguration(1)
-    >>> stock_config.shipment_work_sequence = shipment_work_sequence
-    >>> stock_config.save()
-
-Create a shipment work and check that the cost is updated::
-
-    >>> shipment = project.work_shipments.new()
-    >>> shipment.work_name = 'Work'
-    >>> shipment.work_description = 'Work'
-    >>> shipment.party = customer
-    >>> project.save()
-    >>> project.reload()
-    >>> shipment, = project.work_shipments
-    >>> shipment.click('pending')
-    >>> shipment.planned_date = today
-    >>> shipment.employees.append(Employee(employee.id))
-    >>> shipment.click('plan')
-    >>> shipment.done_description = 'Done'
-    >>> shipment.click('done')
-    >>> timesheet = shipment.timesheet_lines.new()
-    >>> timesheet.employee = employee
-    >>> timesheet.hours = 3.0
-    >>> timesheet.work = shipment.work
-    >>> shipment.save()
-    >>> project.reload()
-    >>> project.expense_labor
-    Decimal('30.00')
-    >>> project.margin_labor
-    Decimal('120.00')
-    >>> project.margin_percent_labor
-    Decimal('4.0000')
-
-When invoicing the shipment work the new sale is related to the project::
-
-    >>> shipment.click('check')
-    >>> sale, = shipment.sales
-    >>> sale.project == project
-    True
