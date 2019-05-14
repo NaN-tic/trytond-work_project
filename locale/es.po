@@ -401,3 +401,27 @@ msgstr "Proyecto de trabajo"
 msgctxt "view:work.project:"
 msgid "Work Projects"
 msgstr "Proyectos de trabajo"
+
+msgctxt "field:work.project,shipment_state:"
+msgid "Shipment State"
+msgstr "Estado envío"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Exception"
+msgstr "Excepción"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Sent"
+msgstr "Enviado"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Partially sent"
+msgstr "Parcialmente enviado"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Waiting"
+msgstr "Esperando"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "None"
+msgstr "Ninguno"

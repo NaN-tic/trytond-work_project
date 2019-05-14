@@ -175,7 +175,16 @@ class Project(ModelSQL, ModelView):
     note = fields.Text('Note')
     invoices = fields.Function(fields.One2Many('account.invoice', None,
         'Invoices'), 'get_invoices')
-
+    shipment_state = fields.Function(fields.Selection([
+        ('exception', 'Exception'),
+        ('sent', 'Sent'),
+        ('partially sent', 'Partially sent'),
+        ('waiting', 'Waiting'),
+        ('none', 'None'),
+        ], 'Shipment State'), 
+        'get_shipment_state',
+        searcher='search_shipment_state_field'
+        )
 
     @staticmethod
     def default_currency_digits():
@@ -331,6 +340,35 @@ class Project(ModelSQL, ModelView):
         default = default.copy()
         default['code'] = None
         return super(Project, cls).copy(projects, default=default)
+
+    @classmethod
+    def get_shipment_state(cls, records, _):
+        '''
+        Return the shipment state for the sale.
+        '''
+        res = {}
+        for project in records:
+            sales = project.sales
+            if sales:
+                if any(s.shipment_state == 'exception' for s in sales):
+                   res[project.id] = 'exception'
+                elif all(s.shipment_state == 'sent' for s in sales):
+                    res[project.id] = 'sent'
+                elif any(s.shipment_state == 'sent' for s in sales):
+                    res[project.id] = 'partially sent'
+                else:
+                    res[project.id] = 'waiting'
+            else:
+                res[project.id] = 'none'
+        return res
+
+    @classmethod
+    def search_shipment_state_field(cls, name, clause):
+        shipment_state_filter = clause[2]
+        projects = cls.search([])
+        projects_shipment_state_dict = Project.get_shipment_state(projects, name)
+        filtered_projects = [p.id for p in projects if projects_shipment_state_dict[p.id] == shipment_state_filter]
+        return ['id', 'in', filtered_projects]
 
 
 class Sale:

@@ -401,3 +401,27 @@ msgstr "Projecte de treball"
 msgctxt "view:work.project:"
 msgid "Work Projects"
 msgstr "Projectes de treball"
+
+msgctxt "field:work.project,shipment_state:"
+msgid "Shipment State"
+msgstr "Estat enviament"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Exception"
+msgstr "Excepció"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Sent"
+msgstr "Enviat"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Partially sent"
+msgstr "Parcialment enviat"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "Waiting"
+msgstr "Esperant"
+
+msgctxt "selection:work.project,shipment_state:"
+msgid "None"
+msgstr "Cap"
