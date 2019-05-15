@@ -157,6 +157,22 @@
             <field name="menu" ref="menu_work_project"/>
             <field name="group" ref="group_work_project_admin"/>
         </record>
+
+        <!-- domains -->
+        <record model="ir.action.act_window.domain" id="act_work_project_domain_not_sent">
+            <field name="name">Pending shipment</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('shipment_state', '!=', 'sent')]" pyson="1"/>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_work_project"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_work_project_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="100"/>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_work_project"/>
+        </record>
+        -->    
     </data>
     <data depends="sale_opportunity_purchase_relation">
         <record model="ir.action.act_window" id="act_project_related_purchases">

@@ -368,7 +368,12 @@ class Project(ModelSQL, ModelView):
         projects = cls.search([])
         projects_shipment_state_dict = Project.get_shipment_state(projects, name)
         filtered_projects = [p.id for p in projects if projects_shipment_state_dict[p.id] == shipment_state_filter]
-        return ['id', 'in', filtered_projects]
+        if clause[1] == '=':
+            return ['id', 'in', filtered_projects]
+        elif clause[1] == '!=':
+            return ['id', 'not in', filtered_projects]
+        else:
+            return None
 
 
 class Sale:

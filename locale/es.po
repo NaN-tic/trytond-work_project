@@ -424,4 +424,12 @@ msgstr "Esperando"
 
 msgctxt "selection:work.project,shipment_state:"
 msgid "None"
-msgstr "Ninguno"
+msgstr "Sin venta(s)"
+
+msgctxt "model:ir.action.act_window.domain,name:act_work_project_domain_not_sent"
+msgid "Pending shipment"
+msgstr "Envío pendiente"
+
+msgctxt "model:ir.action.act_window.domain,name:act_work_project_domain_all"
+msgid "All"
+msgstr "Todo"
