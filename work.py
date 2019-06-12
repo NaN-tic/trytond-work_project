@@ -14,6 +14,8 @@ from trytond.modules.product import price_digits
 
 __all__ = ['ProjectSaleLine', 'Project', 'Sale']
 
+__metaclass__ = PoolMeta
+
 _ZERO = Decimal('0.0')
 
 
@@ -64,17 +66,17 @@ class ProjectSaleLine(ModelSQL, ModelView):
                 'write_date'):
             columns.append(Max(getattr(table, name)).as_(name))
 
-        columns.extend([sale.work_project, table.product, sale.currency, table.unit,
+        columns.extend([sale.project, table.product, sale.currency, table.unit,
                 Sum(table.quantity).as_('quantity'),
             Avg(table.unit_price).as_('unit_price')])
 
         return table.join(sale, condition=(sale.id == table.sale)).select(
             *columns,
             where=((table.type == 'line') &
-                (sale.work_project != None) &
+                (sale.project != None) &
                 (NotIn(sale.state, ['cancel', 'draft', 'quotation']))
                 ),
-            group_by=(sale.work_project, sale.currency, table.product, table.unit))
+            group_by=(sale.project, sale.currency, table.product, table.unit))
 
 
 class Project(ModelSQL, ModelView):
@@ -108,7 +110,7 @@ class Project(ModelSQL, ModelView):
             ('state', 'in', ['quotation', 'confirmed', 'processing']),
             ],
         depends=['party'])
-    sale_lines = fields.One2Many('work.project.sale.line', 'work_project',
+    sale_lines = fields.One2Many('work.project.sale.line', 'project',
         'Sale Lines', readonly=True)
     supplier_invoice_lines = fields.One2Many('account.invoice.line',
         'work_project', 'Supplier Invoice Lines', domain=[
@@ -240,6 +242,7 @@ class Project(ModelSQL, ModelView):
                 if self.is_other_line(line):
                     amount += line.amount
         return amount
+
 
     def get_expense_material(self, name):
         amount = _ZERO
@@ -375,11 +378,15 @@ class Project(ModelSQL, ModelView):
 
 class Sale:
     __name__ = 'sale.sale'
-    __metaclass__ = PoolMeta
-
-    work_project = fields.Many2One('work.project', 'Project (old)', domain=[
+    project = fields.Many2One('work.project', 'Project', domain=[
             ('party', '=', Eval('party')),
-            ], depends=['party'])
+            ],
+        states={
+            'readonly': ~Eval('state').in_(['draft', 'quotation',
+                 'confirmed']),
+            'required': Eval('state').in_(['processing', 'done']),
+            },
+        depends=['party', 'state'])
 
     def invoiced_amount(self):
         amount = Decimal('0.00')

@@ -12,10 +12,8 @@ class InvoiceLine:
     __name__ = 'account.invoice.line'
     __metaclass__ = PoolMeta
 
-    work_project = fields.Many2One('work.project', 'Work Project (old)',
+    work_project = fields.Many2One('work.project', 'Work Project',
         states={
-            'invisible': ~Eval('_parent_invoice', {}).get(
-                'type', Eval('invoice_type')).in_(
-                ['in_invoice', 'in_credit_note']),
+            'invisible': ~Eval('_parent_invoice', {}).get('type', Eval('invoice_type')).in_(['in_invoice', 'in_credit_note']),
             },
         depends=[])
